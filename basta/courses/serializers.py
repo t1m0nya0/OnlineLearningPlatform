@@ -4,6 +4,7 @@ from courses.models import Course, Category
 
 
 class CourseModelSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Course
@@ -11,7 +12,6 @@ class CourseModelSerializer(serializers.ModelSerializer):
 
 
 class CategoryModelSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Category
