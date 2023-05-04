@@ -58,6 +58,7 @@ class CourseByCategoryList(mixins.ListModelMixin,
         return self.create(request, *args, **kwargs)
 
     serializer_class = CourseModelSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def get_queryset(self):
         return Course.objects.filter(cat_id=self.kwargs["cat_id"])
