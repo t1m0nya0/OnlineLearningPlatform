@@ -2,14 +2,14 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import viewsets, generics, mixins, status
 from rest_framework import filters
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .models import Course, Category
 from .serializers import CourseModelSerializer, CategoryModelSerializer
 from .permissions import IsOwnerOrReadOnly
 
 
-class CourseViewSet(viewsets.ModelViewSet):
+class CourseApiList(generics.ListCreateAPIView):
     search_fields = ['^name']
     filter_backends = (filters.SearchFilter,)
     permission_classes = (IsAuthenticatedOrReadOnly, )
@@ -22,6 +22,12 @@ class CourseViewSet(viewsets.ModelViewSet):
         if free == 'true':
             queryset = queryset.filter(is_free=True)
         return queryset
+
+
+class CourseApiDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsOwnerOrReadOnly, )
+    queryset = Course.objects.all()
+    serializer_class = CourseModelSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
