@@ -8,7 +8,13 @@ router_categories.register(r'categories', CategoryViewSet)
 
 urlpatterns = [
     path('category/<int:cat_id>/courses/', CourseByCategoryList.as_view()),
-    path('courses/', CourseApiList.as_view()),
+
     path('courses/<int:pk>/', CourseApiDetail.as_view()),
+    path('courses/', CourseApiList.as_view()),
+
     path('', include(router_categories.urls)),
+
+    path('wishlist/', WishListApiList.as_view()),
+    path('wishlist/<int:pk>/', WishListDetail.as_view()),
+
 ]

@@ -2,17 +2,17 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import viewsets, generics, mixins, status
 from rest_framework import filters
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 
 from .models import Course, Category
 from .serializers import CourseModelSerializer, CategoryModelSerializer
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsOwnerOrReadOnly, IsOwner
 
 
 class CourseApiList(generics.ListCreateAPIView):
     search_fields = ['^name']
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Course.objects.all()
     serializer_class = CourseModelSerializer
 
@@ -25,18 +25,15 @@ class CourseApiList(generics.ListCreateAPIView):
 
 
 class CourseApiDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsOwnerOrReadOnly,)
     queryset = Course.objects.all()
     serializer_class = CourseModelSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = CategoryModelSerializer
-
-
-#################################################################################
 
 
 class CourseByCategoryList(mixins.ListModelMixin,
@@ -58,7 +55,34 @@ class CourseByCategoryList(mixins.ListModelMixin,
         return self.create(request, *args, **kwargs)
 
     serializer_class = CourseModelSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         return Course.objects.filter(cat_id=self.kwargs["cat_id"])
+
+
+class WishListApiList(generics.ListAPIView):
+    serializer_class = CourseModelSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Course.objects.filter(favorites=True, user=user)
+
+
+class WishListDetail(mixins.RetrieveModelMixin,
+                     GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.favorites = False
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    queryset = Course.objects.filter(favorites=True)
+    permission_classes = (IsOwner,)
+    serializer_class = CourseModelSerializer
