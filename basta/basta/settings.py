@@ -47,7 +47,10 @@ INSTALLED_APPS = [
     'dj_rest_auth',
 
     'courses',
-    'users'
+    'users',
+    'teachers',
+    'gratitudes',
+
 ]
 
 SITE_ID = 1

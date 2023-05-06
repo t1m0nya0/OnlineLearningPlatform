@@ -5,7 +5,7 @@ from rest_framework import filters
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 
 from .models import Course, Category
-from .serializers import CourseModelSerializer, CategoryModelSerializer
+from .serializers import CourseModelSerializer, CategoryModelSerializer, CourseSerializer
 from .permissions import IsOwnerOrReadOnly, IsOwner
 
 
@@ -62,7 +62,7 @@ class CourseByCategoryList(mixins.ListModelMixin,
 
 
 class WishListApiList(generics.ListAPIView):
-    serializer_class = CourseModelSerializer
+    serializer_class = CourseSerializer
 
     def get_queryset(self):
         user = self.request.user
